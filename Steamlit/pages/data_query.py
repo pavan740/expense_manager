@@ -25,6 +25,8 @@ transaction_type, transaction_type_no_filter, sources_with_filter, source = comm
 date_ranges = comm.get_month_date_ranges()
 st.session_state.start_date = date_ranges['current_month']['start_date']
 st.session_state.end_date = date_ranges['current_month']['end_date']
+
+
 def clear_and_get_data(start_date,end_date,selected_source):
     #del st.session_state['df']
     query = text("""
@@ -130,3 +132,9 @@ if "edited_df" in st.session_state and "df" in st.session_state:
         st.write("Dataframes are not properly initialized.")
 else:
     st.write("Session state does not contain the required dataframes.")
+
+
+if st.button('Delete'):
+    print('i am here')
+    to_process = modified_rows
+

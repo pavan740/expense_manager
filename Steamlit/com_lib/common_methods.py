@@ -2,8 +2,10 @@ from sqlalchemy import create_engine,select, MetaData, update
 import hashlib
 import pandas as pd
 from datetime import datetime, timedelta, date
+import os
 def db_connection():
-    engine = create_engine('sqlite:///expense_manager.db')
+    db_path = os.path.join(os.getcwd(), 'database','expense_manager.db')
+    engine = create_engine(f'sqlite:///{db_path}')
     return engine
 
 def generate_id_transaction(row):

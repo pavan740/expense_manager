@@ -18,6 +18,8 @@ import numpy as np
 import hashlib
 import pickle
 from google.auth.transport.requests import Request
+import configparser
+
 
 st.title("Get Transactions from Email")
 notification_placeholder = st.empty()
@@ -25,8 +27,10 @@ notification_placeholder = st.empty()
 
 # If modifying the code later, delete the token.json to force re-authentication
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
-
-openai.api_key = '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'
+config = configparser.ConfigParser()
+config.read(os.path.join(os.getcwd(), 'import','config.ini'))
+print(config['openai']['apikey'])
+openai.api_key = config['openai']['apikey']
 
 def llm_cleaning(email_body):
     response = openai.chat.completions.create(
@@ -68,10 +72,8 @@ def llm_cleaning(email_body):
 
 def authenticate():
     SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
-    #credentials_file = os.path.join(os.getcwd(), 'import\\credentials.json')
     credentials_file = os.path.join(os.getcwd(), 'import','credentials.json')
     credentials_file = credentials_file
-    #token_file = os.path.join(os.getcwd(), 'import\\token.pickle')
     token_file = os.path.join(os.getcwd(), 'import','token.pickle')
     creds = None
     if os.path.exists(token_file):
