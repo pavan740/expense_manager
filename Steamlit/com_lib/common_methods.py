@@ -90,7 +90,8 @@ def transaction_transform(transactions_df, tran_source):
         transactions_df['unkid'] = transactions_df['Transaction_Date'].astype(str) + '_' + transactions_df['Description'].astype(str) + '_' + \
                                       transactions_df['Amount'].astype(str)
         transactions_df['unkid'] = transactions_df['unkid'].apply(lambda x: hashlib.md5(x.encode()).hexdigest())
-    transactions_df['origin'] = tran_source
+    if(tran_source!=''):
+        transactions_df['origin'] = tran_source
     return transactions_df
 
 

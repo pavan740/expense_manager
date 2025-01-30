@@ -73,8 +73,8 @@ if uploaded_file is not None:
 
 if st.button('Save File'):
     st.dataframe(st.session_state.final_df)
-    #engine = comm.db_connection()
-    #st.session_state.final_df.to_sql('expenses_transaction', con=engine, if_exists='append', index=False)
+    engine = comm.db_connection()
+    st.session_state.final_df.to_sql('expenses_transaction', con=engine, if_exists='append', index=False)
     notification_placeholder.success('Successfully Added.')
     time.sleep(3)
     notification_placeholder.empty()

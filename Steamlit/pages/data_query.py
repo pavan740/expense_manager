@@ -6,7 +6,6 @@ import numpy as np
 
 engine = comm.db_connection()
 st.set_page_config(layout="wide")
-
 st.title('Data Query')
 
 if 'df' not in st.session_state:
@@ -126,15 +125,45 @@ if "edited_df" in st.session_state and "df" in st.session_state:
                     use_container_width=True,
                     hide_index=True
                 )
+            if st.button('Update'):  # Button is inside the conditional block
+                to_be_deleted = modified_records.query('Delete == True')
+                if not to_be_deleted.empty:
+                    to_be_deleted.to_sql('removed_expense', con=engine, if_exists='append', index=False)
+                    ids_to_delete = to_be_deleted['id'].tolist()
+                    with engine.connect() as conn:
+                        for id_val in ids_to_delete:  # Iterate and delete one by one
+                            delete_statement = text("DELETE FROM expenses_transaction WHERE id = :id")
+                            conn.execute(delete_statement, {"id": id_val})
+                        conn.commit()
+                        print('i am done 2')
+                to_be_update = modified_records.query('Delete == False')
+                if not to_be_update.empty:  # Check if there are records to update
+                    to_be_update = to_be_update.drop(columns=['Delete'])
+                    converted_data = comm.transaction_transform(to_be_update,'')
+                    with engine.connect() as conn:
+                        print('i here on update')
+                        for index, row in converted_data.iterrows():
+                            update_statement = "UPDATE expenses_transaction SET "
+                            set_clauses = []
+                            values = {}  # Use a dictionary for parameters
+
+                            for column, value in row.items():
+                                if column != 'id':
+                                    placeholder_name = f"p_{column}"  # Unique placeholder name
+                                    set_clauses.append(f"{column} = :{placeholder_name}")
+                                    values[placeholder_name] = value  # Add to dictionary
+
+                            update_statement += ", ".join(set_clauses)
+                            update_statement += " WHERE id = :id"  # Named placeholder for ID
+                            values["id"] = row['id']
+                            print(update_statement)
+                            print(values)
+                            conn.execute(text(update_statement), values)
+                            conn.commit()
         else:
             st.write("No records have been modified.")
     else:
         st.write("Dataframes are not properly initialized.")
 else:
     st.write("Session state does not contain the required dataframes.")
-
-
-if st.button('Delete'):
-    print('i am here')
-    to_process = modified_rows
 

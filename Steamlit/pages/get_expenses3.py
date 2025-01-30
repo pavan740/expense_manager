@@ -29,7 +29,6 @@ notification_placeholder = st.empty()
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 config = configparser.ConfigParser()
 config.read(os.path.join(os.getcwd(), 'import','config.ini'))
-print(config['openai']['apikey'])
 openai.api_key = config['openai']['apikey']
 
 def llm_cleaning(email_body):
@@ -47,7 +46,7 @@ def llm_cleaning(email_body):
                                 "and AmountSign with the following condition: if it is an expense, it should be DR; if it is a refund, it should be CR."
                                 "Always try to find Description of the transaction from the text."
                                 "If the meaning of the message is failed transaction or doesn't have any transaction details then return blank. Dont show output with any information."
-                                "Work with the only information provided to you. Dont makeup and details"
+                                "Work with the only information provided to you. Dont makeup any details and if you think information is missing then return blank for the value."
                     }
                 ]
             },
@@ -97,10 +96,6 @@ def authenticate():
 def list_messages(service, label_ids=['INBOX'], query=None):
     results = service.users().messages().list(userId='me', labelIds=label_ids, q=query).execute()
     messages = results.get('messages', [])
-    #if not messages:
-    #    print("No messages found.")
-    #else:
-    #    print(f"Found {len(messages)} message(s).")
     return messages
 
 def get_message(service, msg_id):
@@ -112,7 +107,7 @@ def decode_body(body):
     try:
         return base64.urlsafe_b64decode(body).decode('utf-8')
     except Exception as e:
-        #print(f"Error decoding body: {e}")
+        print(f"Error decoding body: {e}")
         return ''
 
 
